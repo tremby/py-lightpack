@@ -146,6 +146,19 @@ class lightpack:
 		self.__sendAndReceive(cmd)
 	setColor = setColour
 
+	def setColours(self, *args):
+		"""
+		Set individual colours of multiple LEDs.
+
+		Each argument should be a tuple of (led, r, g, b) for each LED to be 
+		changed, where the elements of the tuples are the same as the arguments 
+		for the `setColour` method.
+		"""
+		defs = ['{0}-{1},{2},{3}'.format(self.__ledIndex(led), r, g, b) \
+				for (led, r, g, b) in args]
+		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
+	setColors = setColours
+
 	def setColourToAll(self, r, g, b):
 		"""
 		Set all LEDs to the specified colour.
