@@ -129,6 +129,21 @@ class lightpack:
 			print 'Lightpack API server is missing'
 			return -1
 
+	def __ledColourDef(self, led, r, g, b):
+		"""
+		Get the command snippet to set a particular LED to a particular colour.
+
+		:param led: 0-based LED index or its preconfigured alias
+		:type led: str or int
+		:param r: Red value (0 to 255)
+		:type r: int
+		:param g: Green value (0 to 255)
+		:type g: int
+		:param b: Blue value (0 to 255)
+		:type b: int
+		"""
+		return '%d-%d,%d,%d' % (self.__ledIndex(led), r, g, b)
+
 	def setColour(self, led, r, g, b):
 		"""
 		Set the specified LED to the specified colour.
@@ -142,8 +157,7 @@ class lightpack:
 		:param b: Blue value (0 to 255)
 		:type b: int
 		"""
-		self.__sendAndReceive('setcolor:%d-%d,%d,%d' % \
-				(self.__ledIndex(led), r, g, b))
+		self.__sendAndReceive('setcolor:%s' % self.__ledColourDef(led, r, g, b))
 	setColor = setColour
 
 	def setColours(self, *args):
@@ -154,8 +168,7 @@ class lightpack:
 		changed, where the elements of the tuples are the same as the arguments 
 		for the `setColour` method.
 		"""
-		defs = ['%d-%d,%d,%d' % (self.__ledIndex(led), r, g, b) \
-				for (led, r, g, b) in args]
+		defs = [self.__ledColourDef(*arg) for arg in args]
 		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
 	setColors = setColours
 
@@ -170,10 +183,9 @@ class lightpack:
 		:param b: Blue value (0 to 255)
 		:type b: int
 		"""
-		cmdstr = ''
-		for i in range(len(self.ledMap)):
-			cmdstr = '%s%d-%d,%d,%d;' % (cmdstr, self.__ledIndex(i), r, g, b)
-		self.__sendAndReceive('setcolor:%s' % cmdstr)
+		defs = [self.__ledColourDef(led, r, g, b) \
+				for (led, _) in enumerate(self.ledMap)]
+		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
 	setColorToAll = setColourToAll
 
 	def setGamma(self, gamma):
