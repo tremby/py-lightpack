@@ -12,18 +12,30 @@ VERSION = '1.0.0'
 LICENSE = "GNU GPLv3"
 
 class lightpack:
-	# host = '127.0.0.1' # The remote host
-	# port = 3636 # The same port as used by the server
-	# apikey = 'key' # Secure API key which generates by Lightpack software on Dev tab
-	# ledMap = [1,2,3,4,5,6,7,8,9,10] # Mapped LEDs
+	"""
+	Lightpack control class
+	"""
 
 	def __init__(self, _host, _port, _ledMap, _apikey = None):
+		"""
+		Create a lightpack object.
+
+		:param _host: hostname or IP to connect to
+		:param _port: port number to use
+		:param _ledMap: mapped LEDs
+		:param _apikey: API key (password) to provide
+		"""
 		self.host = _host
 		self.port = _port
 		self.ledMap = _ledMap
 		self.apikey = _apikey
 
-	def __readResult(self): # Return last-command API answer (call in every local method)
+	def __readResult(self):
+		"""
+		Return API response to most recent command.
+
+		This is called in every local method.
+		"""
 		total_data = []
 		data = self.connection.recv(8192)
 		total_data.append(data)
@@ -64,7 +76,10 @@ class lightpack:
 		return status
 
 	def connect(self):
-		try: #Try to connect to the server API
+		"""
+		Try to connect to the server API.
+		"""
+		try:
 			self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.connection.connect((self.host, self.port))
 			self.__readResult()
@@ -77,12 +92,18 @@ class lightpack:
 			print 'Lightpack API server is missing'
 			return -1
 
-	def setColor(self, n, r, g, b): # Set color to the define LED
+	def setColor(self, n, r, g, b):
+		"""
+		Set the specified LED to the specified colour.
+		"""
 		cmd = 'setcolor:{0}-{1},{2},{3}\n'.format(self.ledMap[n-1], r, g, b)
 		self.connection.send(cmd)
 		self.__readResult()
 
-	def setColorToAll(self, r, g, b): # Set one color to all LEDs
+	def setColorToAll(self, r, g, b):
+		"""
+		Set all LEDs to the specified colour.
+		"""
 		cmdstr = ''
 		for i in self.ledMap:
 			cmdstr = str(cmdstr) + str(i) + '-{0},{1},{2};'.format(r,g,b)
