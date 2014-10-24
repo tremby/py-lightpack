@@ -88,7 +88,7 @@ class lightpack:
 		Send a command.
 
 		:param command: command to send, without the trailing newline
-		:type command: string
+		:type command: str
 		"""
 		self.connection.send(command + '\n')
 
@@ -97,7 +97,7 @@ class lightpack:
 		Send a command and get a response.
 
 		:param command: command to send
-		:type command: string
+		:type command: str
 		:returns: string response
 		"""
 		self._send(command)
@@ -122,7 +122,7 @@ class lightpack:
 
 	def getStatus(self):
 		"""
-		Get the status of the Lightpack (on or off)
+		Get the status of the Lightpack (on or off).
 
 		:returns: string, 'on' or 'off'
 		"""
