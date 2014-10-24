@@ -38,6 +38,7 @@ class lightpack:
 		self.port = port
 		self.led_map = led_map
 		self.api_key = api_key
+		self.__countLeds = None
 
 	def __ledIndex(self, led):
 		"""
@@ -46,11 +47,25 @@ class lightpack:
 		:param led: 0-based LED index or its preconfigured alias
 		:type led: str or int
 
+		Raises an AliasDoesNotExistError if a given alias cannot be found.
+		Raises an IndexError if an LED index is out of bounds.
+
 		:returns: 1-based LED index
 		"""
 		if isinstance(led, basestring):
-			return self.led_map.index(led) + 1
-		return led + 1
+			try:
+				return self.led_map.index(led) + 1
+			except AttributeError:
+				raise AliasDoesNotExistError("There are no aliases defined, " \
+						"so can't resolve LED \"%s\"" % led)
+			except ValueError:
+				raise AliasDoesNotExistError("Alias \"%s\" isn't defined" % led)
+		index = led + 1
+		count = self.getCountLeds(fresh=False)
+		if index > count:
+			raise IndexError("LED (zero-)index %d out of range " \
+					"(only %d LEDs are connected)" % (led, count))
+		return index
 
 	def __readResult(self):
 		"""
@@ -108,13 +123,19 @@ class lightpack:
 		"""
 		return self.__sendAndReceive('getstatus').split(':')[1]
 
-	def getCountLeds(self):
+	def getCountLeds(self, fresh=True):
 		"""
 		Get the number of LEDs the Lightpack controls.
 
+		If the parameter fresh (default True) is set to False, a previously 
+		cached value will be used if available.
+
 		:returns: integer
 		"""
-		return int(self.__sendAndReceive('getcountleds').split(':')[1])
+		if fresh or self.__countLeds is None:
+			self.__countLeds = int( \
+					self.__sendAndReceive('getcountleds').split(':')[1])
+		return self.__countLeds
 
 	def getAPIStatus(self):
 		return self.__sendAndReceive('getstatusapi').split(':')[1]
@@ -180,7 +201,7 @@ class lightpack:
 		:param rgb: Tuple of red, green, blue values (0 to 255) or Colour object
 		"""
 		defs = [self.__ledColourDef(led, rgb) \
-				for (led, _) in enumerate(self.led_map)]
+				for led in range(self.getCountLeds(fresh=False))]
 		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
 	setColorToAll = setColourToAll
 
@@ -248,3 +269,6 @@ class lightpack:
 		"""
 		self.unlock()
 		self.connection.close()
+
+class AliasDoesNotExistError(RuntimeError):
+	pass
