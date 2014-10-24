@@ -188,7 +188,7 @@ class lightpack:
 		:param profile: profile to activate
 		:type profile: str
 		"""
-		cmd = 'setprofile:%s\n' % p
+		cmd = 'setprofile:%s\n' % profile
 		self.connection.send(cmd)
 		self.__readResult()
 
