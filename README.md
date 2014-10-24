@@ -56,6 +56,18 @@ for i in range(3):
 	lp.setColourToAll((0, 0, 0))
 	sleep(0.2)
 
+# Set top right light to yellow
+# The Colour class is optional
+from colour import Colour
+lp.setColour('top-right', Colour('yellow'))
+
+sleep(1)
+
+# Set left bottom and left right lights to two other colours
+lp.setColours(('left-bottom', Colour('red')), ('left-top', Colour('goldenrod')))
+
+sleep(1)
+
 # Unlock to release control (the disconnect method actually calls this 
 # automatically, but it is often useful on its own so is here for informational 
 # purposes)
