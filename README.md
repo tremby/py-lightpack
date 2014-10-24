@@ -28,7 +28,20 @@ from time import sleep
 host = 'localhost'
 port = 3636
 api_key = 'my-api-key'
-light_map = [i + 1 for i in range(10)]
+light_map = range(10)
+# Or alias the lights in order, e.g.
+# light_map = [
+#   	'bottom-right',
+#   	'right-bottom',
+#   	'right-top',
+#   	'top-far-right',
+#   	'top-right',
+#   	'top-left',
+#   	'top-far-left',
+#   	'left-top',
+#   	'left-bottom',
+#   	'bottom-left',
+# ]
 
 # Connect to the Lightpack
 lp = lightpack.lightpack(host, port, light_map, api_key)
