@@ -3,6 +3,7 @@ import time
 import imaplib
 import re
 import sys
+from distutils.version import StrictVersion
 try:
 	from colour import Colour
 except ImportError:
@@ -14,6 +15,10 @@ AUTHOR = "Bart Nagel <bart@tremby.net>, Mikhail Sannikov <atarity@gmail.com>"
 URL = 'https://github.com/tremby/py-lightpack'
 VERSION = '1.0.0'
 LICENSE = "GNU GPLv3"
+
+# Supported API version range
+API_VERSION_GTE = StrictVersion('1.4')
+API_VERSION_LTE = StrictVersion('1.5')
 
 class lightpack:
 	"""
@@ -163,6 +168,15 @@ class lightpack:
 			greeting = self._readResult()
 		except Exception as e:
 			fail(e)
+
+		# Check greeting and reported API version
+		match = re.match(r'^Lightpack API v(\S+)', greeting)
+		version = StrictVersion(match.group(1))
+		if version < API_VERSION_GTE or version > API_VERSION_LTE:
+			fail("API version (%s) is not supported" % version)
+		if not match:
+			print match
+			fail("Unrecognized greeting from server: \"%s\"" % greeting)
 
 		# Give API key if we have one
 		if self.api_key is not None:
