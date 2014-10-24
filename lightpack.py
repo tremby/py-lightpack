@@ -38,9 +38,9 @@ class lightpack:
 		self.port = port
 		self.led_map = led_map
 		self.api_key = api_key
-		self.__countLeds = None
+		self._countLeds = None
 
-	def __ledIndex(self, led):
+	def _ledIndex(self, led):
 		"""
 		Get the index of the given LED (by alias or index).
 
@@ -67,7 +67,7 @@ class lightpack:
 					"(only %d LEDs are connected)" % (led, count))
 		return index
 
-	def __readResult(self):
+	def _readResult(self):
 		"""
 		Return API response to most recent command.
 
@@ -78,7 +78,7 @@ class lightpack:
 		total_data.append(data)
 		return ''.join(total_data).rstrip('\r\n')
 
-	def __send(self, command):
+	def _send(self, command):
 		"""
 		Send a command.
 
@@ -87,7 +87,7 @@ class lightpack:
 		"""
 		self.connection.send(command + '\n')
 
-	def __sendAndReceive(self, command):
+	def _sendAndReceive(self, command):
 		"""
 		Send a command and get a response.
 
@@ -95,8 +95,8 @@ class lightpack:
 		:type command: string
 		:returns: string response
 		"""
-		self.__send(command)
-		return self.__readResult()
+		self._send(command)
+		return self._readResult()
 
 	def getProfiles(self):
 		"""
@@ -104,7 +104,7 @@ class lightpack:
 
 		:returns: list of strings
 		"""
-		profiles = self.__sendAndReceive('getprofiles')
+		profiles = self._sendAndReceive('getprofiles')
 		return profiles.split(':')[1].rstrip(';').split(';')
 
 	def getProfile(self):
@@ -113,7 +113,7 @@ class lightpack:
 
 		:returns: string
 		"""
-		return self.__sendAndReceive('getprofile').split(':')[1]
+		return self._sendAndReceive('getprofile').split(':')[1]
 
 	def getStatus(self):
 		"""
@@ -121,7 +121,7 @@ class lightpack:
 
 		:returns: string, 'on' or 'off'
 		"""
-		return self.__sendAndReceive('getstatus').split(':')[1]
+		return self._sendAndReceive('getstatus').split(':')[1]
 
 	def getCountLeds(self, fresh=True):
 		"""
@@ -132,13 +132,13 @@ class lightpack:
 
 		:returns: integer
 		"""
-		if fresh or self.__countLeds is None:
-			self.__countLeds = int( \
-					self.__sendAndReceive('getcountleds').split(':')[1])
-		return self.__countLeds
+		if fresh or self._countLeds is None:
+			self._countLeds = int( \
+					self._sendAndReceive('getcountleds').split(':')[1])
+		return self._countLeds
 
 	def getAPIStatus(self):
-		return self.__sendAndReceive('getstatusapi').split(':')[1]
+		return self._sendAndReceive('getstatusapi').split(':')[1]
 
 	def connect(self):
 		"""
@@ -151,15 +151,15 @@ class lightpack:
 		try:
 			self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.connection.connect((self.host, self.port))
-			self.__readResult()
+			self._readResult()
 			if self.api_key is not None:
-				self.__sendAndReceive('apikey:%s' % self.api_key)
+				self._sendAndReceive('apikey:%s' % self.api_key)
 			return 0
 		except:
 			print 'Lightpack API server is missing'
 			return -1
 
-	def __ledColourDef(self, led, rgb):
+	def _ledColourDef(self, led, rgb):
 		"""
 		Get the command snippet to set a particular LED to a particular colour.
 
@@ -169,7 +169,7 @@ class lightpack:
 		"""
 		if Colour is not None and isinstance(rgb, Colour):
 			rgb = rgb.rgb255()
-		return '%d-%d,%d,%d' % tuple([self.__ledIndex(led)] + list(rgb))
+		return '%d-%d,%d,%d' % tuple([self._ledIndex(led)] + list(rgb))
 
 	def setColour(self, led, rgb):
 		"""
@@ -179,7 +179,7 @@ class lightpack:
 		:type led: str or int
 		:param rgb: Tuple of red, green, blue values (0 to 255) or Colour object
 		"""
-		self.__sendAndReceive('setcolor:%s' % self.__ledColourDef(led, rgb))
+		self._sendAndReceive('setcolor:%s' % self._ledColourDef(led, rgb))
 	setColor = setColour
 
 	def setColours(self, *args):
@@ -190,8 +190,8 @@ class lightpack:
 		changed, where the elements of the tuples are the same as the arguments 
 		for the `setColour` method.
 		"""
-		defs = [self.__ledColourDef(*arg) for arg in args]
-		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
+		defs = [self._ledColourDef(*arg) for arg in args]
+		self._sendAndReceive('setcolor:%s' % ';'.join(defs))
 	setColors = setColours
 
 	def setColourToAll(self, rgb):
@@ -200,19 +200,19 @@ class lightpack:
 
 		:param rgb: Tuple of red, green, blue values (0 to 255) or Colour object
 		"""
-		defs = [self.__ledColourDef(led, rgb) \
+		defs = [self._ledColourDef(led, rgb) \
 				for led in range(self.getCountLeds(fresh=False))]
-		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
+		self._sendAndReceive('setcolor:%s' % ';'.join(defs))
 	setColorToAll = setColourToAll
 
 	def setGamma(self, gamma):
-		self.__sendAndReceive('setgamma:%s' % gamma)
+		self._sendAndReceive('setgamma:%s' % gamma)
 
 	def setSmooth(self, smooth):
-		self.__sendAndReceive('setsmooth:%s' % smooth)
+		self._sendAndReceive('setsmooth:%s' % smooth)
 
 	def setBrightness(self, brightness):
-		self.__sendAndReceive('setbrightness:%s' % brightness)
+		self._sendAndReceive('setbrightness:%s' % brightness)
 
 	def setProfile(self, profile):
 		"""
@@ -221,7 +221,7 @@ class lightpack:
 		:param profile: profile to activate
 		:type profile: str
 		"""
-		self.__sendAndReceive('setprofile:%s' % profile)
+		self._sendAndReceive('setprofile:%s' % profile)
 
 	def lock(self):
 		"""
@@ -231,34 +231,34 @@ class lightpack:
 		instance, it won't capture from the screen and update its colours while 
 		locked.
 		"""
-		self.__sendAndReceive('lock')
+		self._sendAndReceive('lock')
 
 	def unlock(self):
 		"""
 		Unlock the Lightpack, thereby releasing control to other processes.
 		"""
-		self.__sendAndReceive('unlock')
+		self._sendAndReceive('unlock')
 
-	def __setStatus(self, status):
+	def _setStatus(self, status):
 		"""
 		Set the status to a given string.
 
 		:param status: status to set
 		:type status: str
 		"""
-		self.__sendAndReceive('setstatus:%s' % status)
+		self._sendAndReceive('setstatus:%s' % status)
 
 	def turnOn(self):
 		"""
 		Turn the Lightpack on.
 		"""
-		self.__setStatus('on')
+		self._setStatus('on')
 
 	def turnOff(self):
 		"""
 		Turn the Lightpack off.
 		"""
-		self.__setStatus('off')
+		self._setStatus('off')
 
 	def disconnect(self):
 		"""
