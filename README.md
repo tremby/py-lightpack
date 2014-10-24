@@ -52,9 +52,10 @@ lp.lock()
 
 # Flash green three times
 for i in range(3):
-	lp.setColorToAll(0, 255, 0)
+	# The American spellings setColor/setColorToAll are available as aliases
+	lp.setColourToAll(0, 255, 0)
 	sleep(0.2)
-	lp.setColorToAll(0, 0, 0)
+	lp.setColourToAll(0, 0, 0)
 	sleep(0.2)
 
 # Unlock to release control

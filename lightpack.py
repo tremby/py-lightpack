@@ -105,7 +105,7 @@ class lightpack:
 			print 'Lightpack API server is missing'
 			return -1
 
-	def setColor(self, led, r, g, b):
+	def setColour(self, led, r, g, b):
 		"""
 		Set the specified LED to the specified colour.
 
@@ -121,8 +121,9 @@ class lightpack:
 		cmd = 'setcolor:{0}-{1},{2},{3}\n'.format(self.__ledIndex(led), r, g, b)
 		self.connection.send(cmd)
 		self.__readResult()
+	setColor = setColour
 
-	def setColorToAll(self, r, g, b):
+	def setColourToAll(self, r, g, b):
 		"""
 		Set all LEDs to the specified colour.
 
@@ -139,6 +140,7 @@ class lightpack:
 		cmd = 'setcolor:' + cmdstr + '\n'
 		self.connection.send(cmd)
 		self.__readResult()
+	setColorToAll = setColourToAll
 
 	def setGamma(self, g):
 		cmd = 'setgamma:{0}\n'.format(g)
