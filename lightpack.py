@@ -1,4 +1,8 @@
-import socket, time, imaplib, re, sys
+import socket
+import time
+import imaplib
+import re
+import sys
 
 NAME = 'py-lightpack'
 DESCRIPTION = "Library to control Lightpack"
