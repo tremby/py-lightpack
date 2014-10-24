@@ -55,12 +55,22 @@ class lightpack:
 		return ''.join(total_data).rstrip('\r\n')
 
 	def getProfiles(self):
+		"""
+		Get a list of profile names.
+
+		:returns: list of strings
+		"""
 		cmd = 'getprofiles\n'
 		self.connection.send(cmd)
 		profiles = self.__readResult()
 		return profiles.split(':')[1].rstrip(';').split(';')
 
 	def getProfile(self):
+		"""
+		Get the name of the currently active profile.
+
+		:returns: string
+		"""
 		cmd = 'getprofile\n'
 		self.connection.send(cmd)
 		profile = self.__readResult()
@@ -68,6 +78,11 @@ class lightpack:
 		return profile
 
 	def getStatus(self):
+		"""
+		Get the status of the Lightpack (on or off)
+
+		:returns: string, 'on' or 'off'
+		"""
 		cmd = 'getstatus\n'
 		self.connection.send(cmd)
 		status = self.__readResult()
@@ -75,6 +90,11 @@ class lightpack:
 		return status
 
 	def getCountLeds(self):
+		"""
+		Get the number of LEDs the Lightpack controls.
+
+		:returns: string number
+		"""
 		cmd = 'getcountleds\n'
 		self.connection.send(cmd)
 		count = self.__readResult()
@@ -90,7 +110,11 @@ class lightpack:
 
 	def connect(self):
 		"""
-		Try to connect to the server API.
+		Try to connect to the Lightpack API.
+
+		A message is printed on failure.
+
+		:returns: 0 on (probable) success, -1 on definite error
 		"""
 		try:
 			self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -157,17 +181,33 @@ class lightpack:
 		self.connection.send(cmd)
 		self.__readResult()
 
-	def setProfile(self, p):
+	def setProfile(self, profile):
+		"""
+		Set the current Lightpack profile.
+
+		:param profile: profile to activate
+		:type profile: str
+		"""
 		cmd = 'setprofile:%s\n' % p
 		self.connection.send(cmd)
 		self.__readResult()
 
 	def lock(self):
+		"""
+		Lock the Lightpack, thereby assuming control.
+
+		While locked, the Lightpack's other functionality will be frozen. For 
+		instance, it won't capture from the screen and update its colours while 
+		locked.
+		"""
 		cmd = 'lock\n'
 		self.connection.send(cmd)
 		self.__readResult()
 
 	def unlock(self):
+		"""
+		Unlock the Lightpack, thereby releasing control to other processes.
+		"""
 		cmd = 'unlock\n'
 		self.connection.send(cmd)
 		self.__readResult()
@@ -196,5 +236,11 @@ class lightpack:
 		self.__setStatus('off')
 
 	def disconnect(self):
+		"""
+		Unlock and disconnect from the Lightpack API.
+
+		This method calls the `unlock()` method before disconnecting but will 
+		not fail if the Lightpack is already unlocked.
+		"""
 		self.unlock()
 		self.connection.close()
