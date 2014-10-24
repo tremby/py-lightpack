@@ -17,6 +17,11 @@ Or install from source by cloning this repository and running
 
 	sudo python setup.py install
 
+Documentation
+-------------
+
+See the code or `pydoc lightpack` for full documentation.
+
 Usage example
 -------------
 
