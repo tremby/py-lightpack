@@ -93,13 +93,13 @@ class lightpack:
 		"""
 		Get the number of LEDs the Lightpack controls.
 
-		:returns: string number
+		:returns: integer
 		"""
 		cmd = 'getcountleds\n'
 		self.connection.send(cmd)
 		count = self.__readResult()
 		count = count.split(':')[1]
-		return count
+		return int(count)
 
 	def getAPIStatus(self):
 		cmd = 'getstatusapi\n'
