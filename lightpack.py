@@ -299,9 +299,9 @@ class lightpack:
 		# TODO: document
 		self._sendAndReceive('setgamma:%s' % gamma)
 
-	def setSmooth(self, smooth):
+	def setSmoothness(self, smoothness):
 		# TODO: document
-		self._sendAndReceive('setsmooth:%s' % smooth)
+		self._sendAndReceive('setsmooth:%s' % smoothness)
 
 	def setBrightness(self, brightness):
 		# TODO: document
