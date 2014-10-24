@@ -188,9 +188,9 @@ class lightpack:
 
 	def getStatus(self):
 		"""
-		Get the status of the Lightpack (on or off).
+		Get the status of the Lightpack (on or off, or possibly other status).
 
-		:returns: string, 'on' or 'off'
+		:returns: string, 'on', 'off' or 'unknown', possibly others
 		"""
 		return self._sendAndReceivePayload('getstatus')
 
@@ -208,7 +208,11 @@ class lightpack:
 		return self._countLeds
 
 	def getAPIStatus(self):
-		# TODO: document
+		"""
+		Get the API status (busy or idle).
+
+		:returns: string, 'busy' or 'idle' depending on lock state.
+		"""
 		return self._sendAndReceivePayload('getstatusapi')
 
 	def connect(self):
