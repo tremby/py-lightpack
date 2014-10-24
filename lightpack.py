@@ -142,8 +142,8 @@ class lightpack:
 		:param b: Blue value (0 to 255)
 		:type b: int
 		"""
-		cmd = 'setcolor:{0}-{1},{2},{3}'.format(self.__ledIndex(led), r, g, b)
-		self.__sendAndReceive(cmd)
+		self.__sendAndReceive('setcolor:%d-%d,%d,%d' % \
+				(self.__ledIndex(led), r, g, b))
 	setColor = setColour
 
 	def setColours(self, *args):
@@ -154,7 +154,7 @@ class lightpack:
 		changed, where the elements of the tuples are the same as the arguments 
 		for the `setColour` method.
 		"""
-		defs = ['{0}-{1},{2},{3}'.format(self.__ledIndex(led), r, g, b) \
+		defs = ['%d-%d,%d,%d' % (self.__ledIndex(led), r, g, b) \
 				for (led, r, g, b) in args]
 		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
 	setColors = setColours
@@ -172,7 +172,7 @@ class lightpack:
 		"""
 		cmdstr = ''
 		for i in range(len(self.ledMap)):
-			cmdstr = str(cmdstr) + str(self.__ledIndex(i)) + '-{0},{1},{2};'.format(r,g,b)
+			cmdstr = '%s%d-%d,%d,%d;' % (cmdstr, self.__ledIndex(i), r, g, b)
 		self.__sendAndReceive('setcolor:%s' % cmdstr)
 	setColorToAll = setColourToAll
 
