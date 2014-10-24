@@ -39,13 +39,13 @@ class lightpack:
 		total_data = []
 		data = self.connection.recv(8192)
 		total_data.append(data)
-		return ''.join(total_data)
+		return ''.join(total_data).rstrip('\r\n')
 
 	def getProfiles(self):
 		cmd = 'getprofiles\n'
 		self.connection.send(cmd)
 		profiles = self.__readResult()
-		return profiles.split(':')[1].rstrip(';\r\n').split(';')
+		return profiles.split(':')[1].rstrip(';').split(';')
 
 	def getProfile(self):
 		cmd = 'getprofile\n'
