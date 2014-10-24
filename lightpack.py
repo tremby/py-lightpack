@@ -24,19 +24,19 @@ class lightpack:
 	the 0 to 255 range) or [Colour](https://github.com/tremby/py-colour) objects.
 	"""
 
-	def __init__(self, _host, _port, _ledMap, _apikey = None):
+	def __init__(self, host, port, ledMap, apikey = None):
 		"""
 		Create a lightpack object.
 
-		:param _host: hostname or IP to connect to
-		:param _port: port number to use
-		:param _ledMap: List of aliases for LEDs
-		:param _apikey: API key (password) to provide
+		:param host: hostname or IP to connect to
+		:param port: port number to use
+		:param ledMap: List of aliases for LEDs
+		:param apikey: API key (password) to provide
 		"""
-		self.host = _host
-		self.port = _port
-		self.ledMap = _ledMap
-		self.apikey = _apikey
+		self.host = host
+		self.port = port
+		self.ledMap = ledMap
+		self.apikey = apikey
 
 	def __ledIndex(self, led):
 		"""
