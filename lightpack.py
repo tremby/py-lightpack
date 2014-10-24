@@ -1,5 +1,12 @@
 import socket, time, imaplib, re, sys
 
+NAME = 'py-lightpack'
+DESCRIPTION = "Library to control Lightpack"
+AUTHOR = "Bart Nagel <bart@tremby.net>, Mikhail Sannikov <atarity@gmail.com>"
+URL = 'https://github.com/tremby/py-lightpack'
+VERSION = '1.0.0'
+LICENSE = "GNU GPLv3"
+
 class lightpack:
 
 #	host = '127.0.0.1'    # The remote host
