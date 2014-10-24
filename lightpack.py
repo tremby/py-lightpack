@@ -3,6 +3,10 @@ import time
 import imaplib
 import re
 import sys
+try:
+	from colour import Colour
+except ImportError:
+	Colour = None
 
 NAME = 'py-lightpack'
 DESCRIPTION = "Library to control Lightpack"
@@ -14,6 +18,10 @@ LICENSE = "GNU GPLv3"
 class lightpack:
 	"""
 	Lightpack control class
+
+	Colours passed to the setColour, setColourToAll and setColours methods as 
+	the `rgb` variable can be either a tuple of red, green and blue integers (in 
+	the 0 to 255 range) or [Colour](https://github.com/tremby/py-colour) objects.
 	"""
 
 	def __init__(self, _host, _port, _ledMap, _apikey = None):
@@ -135,8 +143,10 @@ class lightpack:
 
 		:param led: 0-based LED index or its preconfigured alias
 		:type led: str or int
-		:param rgb: Tuple of red, green and blue values (0 to 255)
+		:param rgb: Tuple of red, green, blue values (0 to 255) or Colour object
 		"""
+		if Colour is not None and isinstance(rgb, Colour):
+			rgb = rgb.rgb255()
 		return '%d-%d,%d,%d' % tuple([self.__ledIndex(led)] + list(rgb))
 
 	def setColour(self, led, rgb):
@@ -145,7 +155,7 @@ class lightpack:
 
 		:param led: 0-based LED index or its preconfigured alias
 		:type led: str or int
-		:param rgb: Tuple of red, green and blue values (0 to 255)
+		:param rgb: Tuple of red, green, blue values (0 to 255) or Colour object
 		"""
 		self.__sendAndReceive('setcolor:%s' % self.__ledColourDef(led, rgb))
 	setColor = setColour
@@ -166,7 +176,7 @@ class lightpack:
 		"""
 		Set all LEDs to the specified colour.
 
-		:param rgb: Tuple of red, green and blue values (0 to 255)
+		:param rgb: Tuple of red, green, blue values (0 to 255) or Colour object
 		"""
 		defs = [self.__ledColourDef(led, rgb) \
 				for (led, _) in enumerate(self.ledMap)]
