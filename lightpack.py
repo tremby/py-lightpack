@@ -24,6 +24,10 @@ class lightpack:
 	"""
 	Lightpack control class
 
+	Most methods can raise a CommandFailedError if the command fails. The reason 
+	could be an invalid parameter, lack of permissions, lock from another 
+	process or something else, and this information will be in the exception.
+
 	Colours passed to the setColour, setColourToAll and setColours methods as 
 	the `rgb` variable can be either a tuple of red, green and blue integers (in 
 	the 0 to 255 range) or [Colour](https://github.com/tremby/py-colour) objects.
