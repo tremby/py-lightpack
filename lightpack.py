@@ -95,6 +95,15 @@ class lightpack:
 	def setColor(self, n, r, g, b):
 		"""
 		Set the specified LED to the specified colour.
+
+		:param led: LED index
+		:type led: int
+		:param r: Red value (0 to 255)
+		:type r: int
+		:param g: Green value (0 to 255)
+		:type g: int
+		:param b: Blue value (0 to 255)
+		:type b: int
 		"""
 		cmd = 'setcolor:{0}-{1},{2},{3}\n'.format(self.ledMap[n-1], r, g, b)
 		self.connection.send(cmd)
@@ -103,6 +112,13 @@ class lightpack:
 	def setColorToAll(self, r, g, b):
 		"""
 		Set all LEDs to the specified colour.
+
+		:param r: Red value (0 to 255)
+		:type r: int
+		:param g: Green value (0 to 255)
+		:type g: int
+		:param b: Blue value (0 to 255)
+		:type b: int
 		"""
 		cmdstr = ''
 		for i in self.ledMap:
