@@ -296,16 +296,34 @@ class lightpack:
 	setColorToAll = setColourToAll
 
 	def setGamma(self, gamma):
-		# TODO: document
-		self._sendAndReceive('setgamma:%s' % gamma)
+		"""
+		Set the gamma setting to the given value.
+
+		:param gamma: gamma in the range 0.01 to 10.0
+		:type gamma: float
+		"""
+		self._sendAndExpectOk('setgamma:%s' % gamma)
 
 	def setSmoothness(self, smoothness):
-		# TODO: document
-		self._sendAndReceive('setsmooth:%s' % smoothness)
+		"""
+		Set the smoothness setting to the given value.
+
+		With a smoothness of 0 the colours change suddenly. With a positive 
+		smoothness the colours gradually change.
+
+		:param smoothness: smoothness in the range 0 to 255
+		:type smoothness: int
+		"""
+		self._sendAndExpectOk('setsmooth:%s' % smoothness)
 
 	def setBrightness(self, brightness):
-		# TODO: document
-		self._sendAndReceive('setbrightness:%s' % brightness)
+		"""
+		Set the brightness modifier of all LEDs to the given value.
+
+		:param brightness: brightness in the range 0 to 100
+		:type brightness: int
+		"""
+		self._sendAndExpectOk('setbrightness:%s' % brightness)
 
 	def setProfile(self, profile):
 		"""
