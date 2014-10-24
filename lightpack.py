@@ -129,42 +129,32 @@ class lightpack:
 			print 'Lightpack API server is missing'
 			return -1
 
-	def __ledColourDef(self, led, r, g, b):
+	def __ledColourDef(self, led, rgb):
 		"""
 		Get the command snippet to set a particular LED to a particular colour.
 
 		:param led: 0-based LED index or its preconfigured alias
 		:type led: str or int
-		:param r: Red value (0 to 255)
-		:type r: int
-		:param g: Green value (0 to 255)
-		:type g: int
-		:param b: Blue value (0 to 255)
-		:type b: int
+		:param rgb: Tuple of red, green and blue values (0 to 255)
 		"""
-		return '%d-%d,%d,%d' % (self.__ledIndex(led), r, g, b)
+		return '%d-%d,%d,%d' % tuple([self.__ledIndex(led)] + list(rgb))
 
-	def setColour(self, led, r, g, b):
+	def setColour(self, led, rgb):
 		"""
 		Set the specified LED to the specified colour.
 
 		:param led: 0-based LED index or its preconfigured alias
 		:type led: str or int
-		:param r: Red value (0 to 255)
-		:type r: int
-		:param g: Green value (0 to 255)
-		:type g: int
-		:param b: Blue value (0 to 255)
-		:type b: int
+		:param rgb: Tuple of red, green and blue values (0 to 255)
 		"""
-		self.__sendAndReceive('setcolor:%s' % self.__ledColourDef(led, r, g, b))
+		self.__sendAndReceive('setcolor:%s' % self.__ledColourDef(led, rgb))
 	setColor = setColour
 
 	def setColours(self, *args):
 		"""
 		Set individual colours of multiple LEDs.
 
-		Each argument should be a tuple of (led, r, g, b) for each LED to be 
+		Each argument should be a tuple of (led, rgb) for each LED to be 
 		changed, where the elements of the tuples are the same as the arguments 
 		for the `setColour` method.
 		"""
@@ -172,18 +162,13 @@ class lightpack:
 		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
 	setColors = setColours
 
-	def setColourToAll(self, r, g, b):
+	def setColourToAll(self, rgb):
 		"""
 		Set all LEDs to the specified colour.
 
-		:param r: Red value (0 to 255)
-		:type r: int
-		:param g: Green value (0 to 255)
-		:type g: int
-		:param b: Blue value (0 to 255)
-		:type b: int
+		:param rgb: Tuple of red, green and blue values (0 to 255)
 		"""
-		defs = [self.__ledColourDef(led, r, g, b) \
+		defs = [self.__ledColourDef(led, rgb) \
 				for (led, _) in enumerate(self.ledMap)]
 		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
 	setColorToAll = setColourToAll
