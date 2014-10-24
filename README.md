@@ -58,6 +58,11 @@ for i in range(3):
 	lp.setColourToAll(0, 0, 0)
 	sleep(0.2)
 
-# Unlock to release control
+# Unlock to release control (the disconnect method actually calls this 
+# automatically, but it is often useful on its own so is here for informational 
+# purposes)
 lp.unlock()
+
+# Disconnect
+lp.disconnect()
 ```
