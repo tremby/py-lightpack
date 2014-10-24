@@ -83,6 +83,29 @@ class lightpack:
 		total_data.append(data)
 		return ''.join(total_data).rstrip('\r\n')
 
+	def _commandPart(self, string, part):
+		"""
+		Get one part of a command or response -- the name or the payload.
+		"""
+		try:
+			return string.split(':', 1)[part]
+		except IndexError:
+			return None
+
+	def _name(self, string):
+		"""
+		Get the command name part of a command or response (the part before the 
+		first colon).
+		"""
+		return self._commandPart(string, 0)
+
+	def _payload(self, string):
+		"""
+		Get the payload part of a command or response (the part after the first 
+		colon).
+		"""
+		return self._commandPart(string, 1)
+
 	def _send(self, command):
 		"""
 		Send a command.
@@ -103,14 +126,57 @@ class lightpack:
 		self._send(command)
 		return self._readResult()
 
+	def _sendAndReceivePayload(self, command):
+		"""
+		Send a command and get the payload.
+
+		:param command: command to send
+		:type command: str
+		:returns: string payload
+		"""
+		return self._payload(self._sendAndReceive(command))
+
+	def _sendAndExpect(self, command, expected_response):
+		"""
+		Send a command and raise a CommandFailedError if a particular response 
+		is not received.
+
+		:param command: command to send
+		:type command: str
+		:param expected_response: expected response
+		:type expected_response: str
+		"""
+		response = self._sendAndReceive(command)
+		if response == expected_response:
+			return
+		raise CommandFailedError(command, response, expected_response)
+
+	def _sendAndExpectOk(self, command):
+		"""
+		Send a command and raise a CommandFailedError if 'ok' is not received.
+
+		:param command: command to send
+		:type command: str
+		"""
+		self._sendAndExpect(command, 'ok')
+
+	def _sendAndExpectSuccess(self, command):
+		"""
+		Send a command and raise a CommandFailedError if 'commandname:success' 
+		is not received.
+
+		:param command: command to send
+		:type command: str
+		"""
+		self._sendAndExpect(command, '%s:success' % self._name(command))
+
 	def getProfiles(self):
 		"""
 		Get a list of profile names.
 
 		:returns: list of strings
 		"""
-		profiles = self._sendAndReceive('getprofiles')
-		return profiles.split(':')[1].rstrip(';').split(';')
+		return self._sendAndReceivePayload('getprofiles').rstrip(';').split(';')
 
 	def getProfile(self):
 		"""
@@ -118,7 +184,7 @@ class lightpack:
 
 		:returns: string
 		"""
-		return self._sendAndReceive('getprofile').split(':')[1]
+		return self._sendAndReceivePayload('getprofile')
 
 	def getStatus(self):
 		"""
@@ -126,7 +192,7 @@ class lightpack:
 
 		:returns: string, 'on' or 'off'
 		"""
-		return self._sendAndReceive('getstatus').split(':')[1]
+		return self._sendAndReceivePayload('getstatus')
 
 	def getCountLeds(self, fresh=True):
 		"""
@@ -138,13 +204,12 @@ class lightpack:
 		:returns: integer
 		"""
 		if fresh or self._countLeds is None:
-			self._countLeds = int( \
-					self._sendAndReceive('getcountleds').split(':')[1])
+			self._countLeds = int(self._sendAndReceivePayload('getcountleds'))
 		return self._countLeds
 
 	def getAPIStatus(self):
 		# TODO: document
-		return self._sendAndReceive('getstatusapi').split(':')[1]
+		return self._sendAndReceivePayload('getstatusapi')
 
 	def connect(self):
 		"""
@@ -204,7 +269,7 @@ class lightpack:
 		:type led: str or int
 		:param rgb: Tuple of red, green, blue values (0 to 255) or Colour object
 		"""
-		self._sendAndReceive('setcolor:%s' % self._ledColourDef(led, rgb))
+		self._sendAndExpectOk('setcolor:%s' % self._ledColourDef(led, rgb))
 	setColor = setColour
 
 	def setColours(self, *args):
@@ -216,7 +281,7 @@ class lightpack:
 		for the `setColour` method.
 		"""
 		defs = [self._ledColourDef(*arg) for arg in args]
-		self._sendAndReceive('setcolor:%s' % ';'.join(defs))
+		self._sendAndExpectOk('setcolor:%s' % ';'.join(defs))
 	setColors = setColours
 
 	def setColourToAll(self, rgb):
@@ -227,7 +292,7 @@ class lightpack:
 		"""
 		defs = [self._ledColourDef(led, rgb) \
 				for led in range(self.getCountLeds(fresh=False))]
-		self._sendAndReceive('setcolor:%s' % ';'.join(defs))
+		self._sendAndExpectOk('setcolor:%s' % ';'.join(defs))
 	setColorToAll = setColourToAll
 
 	def setGamma(self, gamma):
@@ -249,7 +314,7 @@ class lightpack:
 		:param profile: profile to activate
 		:type profile: str
 		"""
-		self._sendAndReceive('setprofile:%s' % profile)
+		self._sendAndExpectOk('setprofile:%s' % profile)
 
 	def lock(self):
 		"""
@@ -259,13 +324,13 @@ class lightpack:
 		instance, it won't capture from the screen and update its colours while 
 		locked.
 		"""
-		self._sendAndReceive('lock')
+		self._sendAndExpectSuccess('lock')
 
 	def unlock(self):
 		"""
 		Unlock the Lightpack, thereby releasing control to other processes.
 		"""
-		self._sendAndReceive('unlock')
+		self._sendAndExpectSuccess('unlock')
 
 	def _setStatus(self, status):
 		"""
@@ -274,7 +339,7 @@ class lightpack:
 		:param status: status to set
 		:type status: str
 		"""
-		self._sendAndReceive('setstatus:%s' % status)
+		self._sendAndExpectOk('setstatus:%s' % status)
 
 	def turnOn(self):
 		"""
@@ -295,7 +360,10 @@ class lightpack:
 		This method calls the `unlock()` method before disconnecting but will 
 		not fail if the Lightpack is already unlocked.
 		"""
-		self.unlock()
+		try:
+			self.unlock()
+		except CommandFailedError:
+			pass
 		self.connection.close()
 
 class CannotConnectError(RuntimeError):
@@ -309,3 +377,11 @@ class NotAuthorizedError(RuntimeError):
 	pass
 class AliasDoesNotExistError(RuntimeError):
 	pass
+class CommandFailedError(RuntimeError):
+	def __init__(self, command, response, expected):
+		super(CommandFailedError, self).__init__( \
+				"Command \"%s\" failed; response \"%s\", expected \"%s\"" % \
+				(command, response, expected))
+		self.command = command
+		self.response = response
+		self.expected = expected
