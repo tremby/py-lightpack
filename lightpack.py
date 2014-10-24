@@ -172,15 +172,28 @@ class lightpack:
 		self.connection.send(cmd)
 		self.__readResult()
 
-	def turnOn(self):
-		cmd = 'setstatus:on\n'
+	def __setStatus(self, status):
+		"""
+		Set the status to a given string.
+
+		:param status: status to set
+		:type status: str
+		"""
+		cmd = 'setstatus:%s\n' % status
 		self.connection.send(cmd)
 		self.__readResult()
 
+	def turnOn(self):
+		"""
+		Turn the Lightpack on.
+		"""
+		self.__setStatus('on')
+
 	def turnOff(self):
-		cmd = 'setstatus:off\n'
-		self.connection.send(cmd)
-		self.__readResult()
+		"""
+		Turn the Lightpack off.
+		"""
+		self.__setStatus('off')
 
 	def disconnect(self):
 		self.unlock()
