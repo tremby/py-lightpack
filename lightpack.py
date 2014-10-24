@@ -207,7 +207,7 @@ class lightpack:
 			self._countLeds = int(self._sendAndReceivePayload('getcountleds'))
 		return self._countLeds
 
-	def getAPIStatus(self):
+	def getApiStatus(self):
 		"""
 		Get the API status (busy or idle).
 
