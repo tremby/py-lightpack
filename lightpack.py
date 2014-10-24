@@ -54,15 +54,33 @@ class lightpack:
 		total_data.append(data)
 		return ''.join(total_data).rstrip('\r\n')
 
+	def __send(self, command):
+		"""
+		Send a command.
+
+		:param command: command to send, without the trailing newline
+		:type command: string
+		"""
+		self.connection.send(command + '\n')
+
+	def __sendAndReceive(self, command):
+		"""
+		Send a command and get a response.
+
+		:param command: command to send
+		:type command: string
+		:returns: string response
+		"""
+		self.__send(command)
+		return self.__readResult()
+
 	def getProfiles(self):
 		"""
 		Get a list of profile names.
 
 		:returns: list of strings
 		"""
-		cmd = 'getprofiles\n'
-		self.connection.send(cmd)
-		profiles = self.__readResult()
+		profiles = self.__sendAndReceive('getprofiles')
 		return profiles.split(':')[1].rstrip(';').split(';')
 
 	def getProfile(self):
@@ -71,11 +89,7 @@ class lightpack:
 
 		:returns: string
 		"""
-		cmd = 'getprofile\n'
-		self.connection.send(cmd)
-		profile = self.__readResult()
-		profile = profile.split(':')[1]
-		return profile
+		return self.__sendAndReceive('getprofile').split(':')[1]
 
 	def getStatus(self):
 		"""
@@ -83,11 +97,7 @@ class lightpack:
 
 		:returns: string, 'on' or 'off'
 		"""
-		cmd = 'getstatus\n'
-		self.connection.send(cmd)
-		status = self.__readResult()
-		status = status.split(':')[1]
-		return status
+		return self.__sendAndReceive('getstatus').split(':')[1]
 
 	def getCountLeds(self):
 		"""
@@ -95,18 +105,10 @@ class lightpack:
 
 		:returns: integer
 		"""
-		cmd = 'getcountleds\n'
-		self.connection.send(cmd)
-		count = self.__readResult()
-		count = count.split(':')[1]
-		return int(count)
+		return int(self.__sendAndReceive('getcountleds').split(':')[1])
 
 	def getAPIStatus(self):
-		cmd = 'getstatusapi\n'
-		self.connection.send(cmd)
-		status = self.__readResult()
-		status = status.split(':')[1]
-		return status
+		return self.__sendAndReceive('getstatusapi').split(':')[1]
 
 	def connect(self):
 		"""
@@ -121,9 +123,7 @@ class lightpack:
 			self.connection.connect((self.host, self.port))
 			self.__readResult()
 			if self.apikey is not None:
-				cmd = 'apikey:' + self.apikey + '\n'
-				self.connection.send(cmd)
-				self.__readResult()
+				self.__sendAndReceive('apikey:%s' % self.apikey)
 			return 0
 		except:
 			print 'Lightpack API server is missing'
@@ -142,9 +142,8 @@ class lightpack:
 		:param b: Blue value (0 to 255)
 		:type b: int
 		"""
-		cmd = 'setcolor:{0}-{1},{2},{3}\n'.format(self.__ledIndex(led), r, g, b)
-		self.connection.send(cmd)
-		self.__readResult()
+		cmd = 'setcolor:{0}-{1},{2},{3}'.format(self.__ledIndex(led), r, g, b)
+		self.__sendAndReceive(cmd)
 	setColor = setColour
 
 	def setColourToAll(self, r, g, b):
@@ -161,25 +160,17 @@ class lightpack:
 		cmdstr = ''
 		for i in range(len(self.ledMap)):
 			cmdstr = str(cmdstr) + str(self.__ledIndex(i)) + '-{0},{1},{2};'.format(r,g,b)
-		cmd = 'setcolor:' + cmdstr + '\n'
-		self.connection.send(cmd)
-		self.__readResult()
+		self.__sendAndReceive('setcolor:%s' % cmdstr)
 	setColorToAll = setColourToAll
 
-	def setGamma(self, g):
-		cmd = 'setgamma:{0}\n'.format(g)
-		self.connection.send(cmd)
-		self.__readResult()
+	def setGamma(self, gamma):
+		self.__sendAndReceive('setgamma:%s' % gamma)
 
-	def setSmooth(self, s):
-		cmd = 'setsmooth:{0}\n'.format(s)
-		self.connection.send(cmd)
-		self.__readResult()
+	def setSmooth(self, smooth):
+		self.__sendAndReceive('setsmooth:%s' % smooth)
 
-	def setBrightness(self, s):
-		cmd = 'setbrightness:{0}\n'.format(s)
-		self.connection.send(cmd)
-		self.__readResult()
+	def setBrightness(self, brightness):
+		self.__sendAndReceive('setbrightness:%s' % brightness)
 
 	def setProfile(self, profile):
 		"""
@@ -188,9 +179,7 @@ class lightpack:
 		:param profile: profile to activate
 		:type profile: str
 		"""
-		cmd = 'setprofile:%s\n' % profile
-		self.connection.send(cmd)
-		self.__readResult()
+		self.__sendAndReceive('setprofile:%s' % profile)
 
 	def lock(self):
 		"""
@@ -200,17 +189,13 @@ class lightpack:
 		instance, it won't capture from the screen and update its colours while 
 		locked.
 		"""
-		cmd = 'lock\n'
-		self.connection.send(cmd)
-		self.__readResult()
+		self.__sendAndReceive('lock')
 
 	def unlock(self):
 		"""
 		Unlock the Lightpack, thereby releasing control to other processes.
 		"""
-		cmd = 'unlock\n'
-		self.connection.send(cmd)
-		self.__readResult()
+		self.__sendAndReceive('unlock')
 
 	def __setStatus(self, status):
 		"""
@@ -219,9 +204,7 @@ class lightpack:
 		:param status: status to set
 		:type status: str
 		"""
-		cmd = 'setstatus:%s\n' % status
-		self.connection.send(cmd)
-		self.__readResult()
+		self.__sendAndReceive('setstatus:%s' % status)
 
 	def turnOn(self):
 		"""
