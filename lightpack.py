@@ -37,7 +37,7 @@ class lightpack:
 		:param led: 0-based LED index or its preconfigured alias
 		:type led: str or int
 
-		:returns 1-based LED index
+		:returns: 1-based LED index
 		"""
 		if isinstance(led, basestring):
 			return self.ledMap.index(led) + 1
