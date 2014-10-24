@@ -25,7 +25,7 @@ import lightpack
 from time import sleep
 
 # Configuration
-host = '127.0.0.1'
+host = 'localhost'
 port = 3636
 api_key = 'my-api-key'
 light_map = [i + 1 for i in range(10)]
