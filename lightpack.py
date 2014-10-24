@@ -102,7 +102,6 @@ class lightpack:
 		self.__readResult()
 
 	def setProfile(self, p):
-		#cmd = 'setprofile:{0}\n'.format(p)
 		cmd = 'setprofile:%s\n' % p
 		self.connection.send(cmd)
 		self.__readResult()
