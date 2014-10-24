@@ -23,6 +23,7 @@ Usage example
 ```python
 import lightpack
 from time import sleep
+import sys
 
 # Configuration
 # host = 'localhost' # (default)
@@ -43,7 +44,11 @@ led_map = [ # Optional aliases for the LEDs in order
 
 # Connect to the Lightpack API
 lp = lightpack.lightpack(led_map=led_map)
-lp.connect()
+try:
+	lp.connect()
+except lightpack.CannotConnectError as e:
+	print repr(e)
+	sys.exit(1)
 
 # Lock the Lightpack so we can make changes
 lp.lock()

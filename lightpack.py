@@ -143,22 +143,32 @@ class lightpack:
 
 	def connect(self):
 		"""
-		Try to connect to the Lightpack API.
+		Connect to the Lightpack API.
 
-		A message is printed on failure.
-
-		:returns: 0 on (probable) success, -1 on definite error
+		A CannotConnectError is raised on failure.
 		"""
+
+		# Function to run if we fail
+		def fail(cause = None):
+			raise CannotConnectError("Could not connect to %s:%d (%s an API key)" % ( \
+					self.host, \
+					self.port, \
+					"without" if self.api_key is None else "with"), \
+					cause)
+
+		# Attempt to connect
 		try:
 			self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.connection.connect((self.host, self.port))
-			self._readResult()
-			if self.api_key is not None:
-				self._sendAndReceive('apikey:%s' % self.api_key)
-			return 0
-		except:
-			print 'Lightpack API server is missing'
-			return -1
+			greeting = self._readResult()
+		except Exception as e:
+			fail(e)
+
+		# Give API key if we have one
+		if self.api_key is not None:
+			response = self._sendAndReceive('apikey:%s' % self.api_key)
+			if response != 'ok':
+				fail("bad API key (server responded '%s')" % response)
 
 	def _ledColourDef(self, led, rgb):
 		"""
@@ -274,5 +284,13 @@ class lightpack:
 		self.unlock()
 		self.connection.close()
 
+class CannotConnectError(RuntimeError):
+	def __init__(self, message, cause = None):
+		if cause is not None:
+			message += ", caused by " + (cause if isinstance(cause, basestring) else repr(cause))
+		super(CannotConnectError, self).__init__(message)
+		self.cause = cause
+class NotAuthorizedError(RuntimeError):
+	pass
 class AliasDoesNotExistError(RuntimeError):
 	pass
