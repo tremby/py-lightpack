@@ -301,7 +301,8 @@ class lightpack:
 class CannotConnectError(RuntimeError):
 	def __init__(self, message, cause = None):
 		if cause is not None:
-			message += ", caused by " + (cause if isinstance(cause, basestring) else repr(cause))
+			message += ", caused by %s" % \
+					(cause if isinstance(cause, basestring) else repr(cause))
 		super(CannotConnectError, self).__init__(message)
 		self.cause = cause
 class NotAuthorizedError(RuntimeError):
