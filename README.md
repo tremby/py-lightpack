@@ -9,4 +9,10 @@ The goal of this project is to address those issues and make other improvements.
 Installation
 ------------
 
+Either install from source by cloning this repository and running
+
 	sudo python setup.py install
+
+or install from PiPI:
+
+	sudo pip install py-lightpack
