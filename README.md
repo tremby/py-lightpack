@@ -25,26 +25,24 @@ import lightpack
 from time import sleep
 
 # Configuration
-host = 'localhost'
-port = 3636
-api_key = 'my-api-key'
-light_map = range(10)
-# Or alias the lights in order, e.g.
-# light_map = [
-#   	'bottom-right',
-#   	'right-bottom',
-#   	'right-top',
-#   	'top-far-right',
-#   	'top-right',
-#   	'top-left',
-#   	'top-far-left',
-#   	'left-top',
-#   	'left-bottom',
-#   	'bottom-left',
-# ]
+# host = 'localhost' # (default)
+# port = 3636 # (default)
+led_map = [ # Optional aliases for the LEDs in order
+	'bottom-right',
+	'right-bottom',
+	'right-top',
+	'top-far-right',
+	'top-right',
+	'top-left',
+	'top-far-left',
+	'left-top',
+	'left-bottom',
+	'bottom-left',
+]
+# api_key = '{secret-code}' # Default is None
 
-# Connect to the Lightpack
-lp = lightpack.lightpack(host, port, light_map, api_key)
+# Connect to the Lightpack API
+lp = lightpack.lightpack(led_map=led_map)
 lp.connect()
 
 # Lock the Lightpack so we can make changes

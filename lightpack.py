@@ -24,19 +24,20 @@ class lightpack:
 	the 0 to 255 range) or [Colour](https://github.com/tremby/py-colour) objects.
 	"""
 
-	def __init__(self, host, port, ledMap, apikey = None):
+	def __init__(self, host='localhost', port=3636, \
+			led_map=None, api_key = None):
 		"""
 		Create a lightpack object.
 
-		:param host: hostname or IP to connect to
-		:param port: port number to use
-		:param ledMap: List of aliases for LEDs
-		:param apikey: API key (password) to provide
+		:param host: hostname or IP to connect to (default localhost)
+		:param port: port number to use (default 3636)
+		:param led_map: List of aliases for LEDs (default None -- no aliases)
+		:param api_key: API key (password) to provide (default None)
 		"""
 		self.host = host
 		self.port = port
-		self.ledMap = ledMap
-		self.apikey = apikey
+		self.led_map = led_map
+		self.api_key = api_key
 
 	def __ledIndex(self, led):
 		"""
@@ -48,7 +49,7 @@ class lightpack:
 		:returns: 1-based LED index
 		"""
 		if isinstance(led, basestring):
-			return self.ledMap.index(led) + 1
+			return self.led_map.index(led) + 1
 		return led + 1
 
 	def __readResult(self):
@@ -130,8 +131,8 @@ class lightpack:
 			self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.connection.connect((self.host, self.port))
 			self.__readResult()
-			if self.apikey is not None:
-				self.__sendAndReceive('apikey:%s' % self.apikey)
+			if self.api_key is not None:
+				self.__sendAndReceive('apikey:%s' % self.api_key)
 			return 0
 		except:
 			print 'Lightpack API server is missing'
@@ -179,7 +180,7 @@ class lightpack:
 		:param rgb: Tuple of red, green, blue values (0 to 255) or Colour object
 		"""
 		defs = [self.__ledColourDef(led, rgb) \
-				for (led, _) in enumerate(self.ledMap)]
+				for (led, _) in enumerate(self.led_map)]
 		self.__sendAndReceive('setcolor:%s' % ';'.join(defs))
 	setColorToAll = setColourToAll
 
