@@ -16,3 +16,34 @@ Either install from source by cloning this repository and running
 or install from PiPI:
 
 	sudo pip install py-lightpack
+
+Usage example
+-------------
+
+```python
+import lightpack
+from time import sleep
+
+# Configuration
+host = '127.0.0.1'
+port = 3636
+api_key = 'my-api-key'
+light_map = [i + 1 for i in range(10)]
+
+# Connect to the Lightpack
+lp = lightpack.lightpack(host, port, light_map, api_key)
+lp.connect()
+
+# Lock the Lightpack so we can make changes
+lp.lock()
+
+# Flash green three times
+for i in range(3):
+	lp.setColorToAll(0, 255, 0)
+	sleep(0.2)
+	lp.setColorToAll(0, 0, 0)
+	sleep(0.2)
+
+# Unlock to release control
+lp.unlock()
+```
