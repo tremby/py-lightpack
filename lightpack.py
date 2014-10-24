@@ -20,7 +20,7 @@ LICENSE = "GNU GPLv3"
 API_VERSION_GTE = StrictVersion('1.4')
 API_VERSION_LTE = StrictVersion('1.5')
 
-class lightpack:
+class Lightpack:
 	"""
 	Lightpack control class
 

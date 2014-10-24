@@ -48,7 +48,7 @@ led_map = [ # Optional aliases for the LEDs in order
 # api_key = '{secret-code}' # Default is None
 
 # Connect to the Lightpack API
-lp = lightpack.lightpack(led_map=led_map)
+lp = lightpack.Lightpack(led_map=led_map)
 try:
 	lp.connect()
 except lightpack.CannotConnectError as e:
