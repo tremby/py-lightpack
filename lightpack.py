@@ -138,6 +138,7 @@ class lightpack:
 		return self._countLeds
 
 	def getAPIStatus(self):
+		# TODO: document
 		return self._sendAndReceive('getstatusapi').split(':')[1]
 
 	def connect(self):
@@ -206,12 +207,15 @@ class lightpack:
 	setColorToAll = setColourToAll
 
 	def setGamma(self, gamma):
+		# TODO: document
 		self._sendAndReceive('setgamma:%s' % gamma)
 
 	def setSmooth(self, smooth):
+		# TODO: document
 		self._sendAndReceive('setsmooth:%s' % smooth)
 
 	def setBrightness(self, brightness):
+		# TODO: document
 		self._sendAndReceive('setbrightness:%s' % brightness)
 
 	def setProfile(self, profile):
