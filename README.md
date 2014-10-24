@@ -22,6 +22,33 @@ Documentation
 
 See the code or `pydoc lightpack` for full documentation.
 
+Migrating from the official library
+-----------------------------------
+
+There are a number of breaking changes from the original library, though code 
+should not be difficult to migrate. The changes include the following:
+
+- The class name is now in studly case, so use `lightpack.Lightpack()` instead 
+  of `lightpack.lightpack()`.
+- The constructor now takes named arguments rather than expecting them in a 
+  particular order, and the `apikey` argument has been renamed to `api_key`.
+- `setSmooth` has been renamed to `setSmoothness`.
+- `getAPIStatus` has been renamed to `getApiStatus`.
+- Colours are now passed to `setColour` and friends as a single tuple of red, 
+  green and blue values rather than separate arguments for each. So use 
+  `lp.setColourToAll((10, 255, 128))` rather than `lp.setColourToAll(10, 255, 
+  128)`.
+- When failing to connect (or when authentication fails during connection) there 
+  is now a much more reliable `CannotConnectError`.
+- Method calls now raise a `CommandFailedError` on failure where before they 
+  were silent.
+
+Spellings
+---------
+
+Methods with the British spellings "colour" now exist, but the American "color" 
+spellings are still supported.
+
 Usage example
 -------------
 
