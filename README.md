@@ -6,6 +6,8 @@ This is a Python library for controlling [Lightpack](http://lightpack.tv/)
 It is a fork of [the official Python library](https://github.com/Atarity/Lightpack/blob/master/Software/apiexamples/pyLightpack/lightpack.py), which at the time of writing is buggy, unpackaged, unmaintained and undocumented.
 The goal of this project is to address those issues and make other improvements.
 
+Python 2 and 3 are supported.
+
 Installation
 ------------
 
@@ -53,6 +55,8 @@ Usage example
 -------------
 
 ```python
+from __future__ import print_function
+
 import lightpack
 from time import sleep
 import sys
@@ -79,7 +83,7 @@ lp = lightpack.Lightpack(led_map=led_map)
 try:
 	lp.connect()
 except lightpack.CannotConnectError as e:
-	print repr(e)
+	print(repr(e))
 	sys.exit(1)
 
 # Lock the Lightpack so we can make changes

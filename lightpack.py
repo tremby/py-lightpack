@@ -1,3 +1,6 @@
+from __future__ import print_function
+from past.builtins import basestring
+
 import socket
 import time
 import imaplib
@@ -13,7 +16,7 @@ NAME = 'py-lightpack'
 DESCRIPTION = "Library to control Lightpack"
 AUTHOR = "Bart Nagel <bart@tremby.net>, Mikhail Sannikov <atarity@gmail.com>"
 URL = 'https://github.com/tremby/py-lightpack'
-VERSION = '2.0.0'
+VERSION = '2.1.0'
 LICENSE = "GNU GPLv3"
 
 # Supported API version range
@@ -82,10 +85,8 @@ class Lightpack:
 
 		This is called in every local method.
 		"""
-		total_data = []
 		data = self.connection.recv(8192)
-		total_data.append(data)
-		return ''.join(total_data).rstrip('\r\n')
+		return data.decode('utf-8').rstrip('\r\n')
 
 	def _commandPart(self, string, part):
 		"""
@@ -117,7 +118,7 @@ class Lightpack:
 		:param command: command to send, without the trailing newline
 		:type command: str
 		"""
-		self.connection.send(command + '\n')
+		self.connection.send(str.encode(command + '\n'))
 
 	def _sendAndReceive(self, command):
 		"""
@@ -248,7 +249,7 @@ class Lightpack:
 		if version < API_VERSION_GTE or version > API_VERSION_LTE:
 			fail("API version (%s) is not supported" % version)
 		if not match:
-			print match
+			print(match)
 			fail("Unrecognized greeting from server: \"%s\"" % greeting)
 
 		# Give API key if we have one
