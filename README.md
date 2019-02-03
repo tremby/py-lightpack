@@ -44,6 +44,7 @@ should not be difficult to migrate. The changes include the following:
   is now a much more reliable `CannotConnectError`.
 - Method calls now raise a `CommandFailedError` on failure where before they 
   were silent.
+- Socket connection is buffered to prevent misreadings.
 
 Spellings
 ---------

@@ -1,11 +1,9 @@
 from __future__ import print_function
 from past.builtins import basestring
 
-import socket
-import time
-import imaplib
 import re
-import sys
+import socket
+from boltons import socketutils
 from distutils.version import StrictVersion
 try:
 	from colour import Colour
@@ -16,7 +14,7 @@ NAME = 'py-lightpack'
 DESCRIPTION = "Library to control Lightpack"
 AUTHOR = "Bart Nagel <bart@tremby.net>, Mikhail Sannikov <atarity@gmail.com>"
 URL = 'https://github.com/tremby/py-lightpack'
-VERSION = '2.1.0'
+VERSION = '2.1.1'
 LICENSE = "GNU GPLv3"
 
 # Supported API version range
@@ -85,8 +83,8 @@ class Lightpack:
 
 		This is called in every local method.
 		"""
-		data = self.connection.recv(8192)
-		return data.decode('utf-8').rstrip('\r\n')
+		data = self.connection.recv_until('\r\n'.encode('utf-8'))
+		return data.decode('utf-8')
 
 	def _commandPart(self, string, part):
 		"""
@@ -237,8 +235,9 @@ class Lightpack:
 
 		# Attempt to connect
 		try:
-			self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.connection.connect((self.host, self.port))
+			connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			connection.connect((self.host, self.port))
+			self.connection = socketutils.BufferedSocket(connection)
 			greeting = self._readResult()
 		except Exception as e:
 			fail(e)
