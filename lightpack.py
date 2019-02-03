@@ -19,7 +19,7 @@ LICENSE = "GNU GPLv3"
 
 # Supported API version range
 API_VERSION_GTE = StrictVersion('1.4')
-API_VERSION_LTE = StrictVersion('1.5')
+API_VERSION_LTE = StrictVersion('2.2')
 
 class Lightpack:
 	"""
@@ -29,8 +29,8 @@ class Lightpack:
 	could be an invalid parameter, lack of permissions, lock from another 
 	process or something else, and this information will be in the exception.
 
-	Commands that are not supported by your API version will raise a 
-	CommandNotSupportedError.
+	Commands that are not supported by your API version will raise either 
+	CommandNotSupportedError or CommandDeprecatedError, depending on the case.
 
 	Colours passed to the setColour, setColourToAll and setColours methods as 
 	the `rgb` variable can be either a tuple of red, green and blue integers (in 
@@ -336,6 +336,22 @@ class Lightpack:
 		"""
 		return self._sendAndReceivePayload('getmode')
 
+	def getPersistence(self):
+		"""
+		Get whether or not the last set colors should persist when unlocking.
+
+		Since API v2.2
+
+		Raises a CommandNotSupportedError if API version is too low.
+
+		:returns: string, 'on', 'off', possibly others
+		"""
+		api_version_min = StrictVersion('2.2')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('getPersistence()', api_version_min,
+					self._apiVersion)
+		return self._sendAndReceivePayload('getpersistonunlock')
+
 	def getProfiles(self, fresh=True):
 		"""
 		Get a list of profile names.
@@ -453,6 +469,51 @@ class Lightpack:
 				data = self._ledSizeRead(command)
 				self._ledSizes[data[0]] = data[1]
 		return self._ledSizes
+
+	def getSoundVizColours(self):
+		"""
+		Get min and max color for sound visualization mode.
+
+		Since API v2.1
+
+		Raises a CommandNotSupportedError if API version is too low.
+
+		:returns: Tuple of two rgb tuples.
+		"""
+		api_version_min = StrictVersion('2.1')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('getSoundVizColours()', api_version_min,
+					self._apiVersion)
+		try:
+			command = self._sendAndReceivePayload('getsoundvizcolors')
+			parts = command.split(';', 1)
+			colours = []
+			for part in parts:
+				rgb = part.split(',', 2)
+				colours.append([int(x) for x in rgb if x.strip()])
+			if len(colours) != 2:
+				return None
+		except ValueError:
+			return None
+		return tuple(colours[0]), tuple(colours[1])
+	getSoundVizColors = getSoundVizColours
+
+	def getSoundVizLiquid(self):
+		"""
+		Get whether or not sound visualization is in liquid color mode.
+
+		Since API v2.1
+
+		Raises a CommandNotSupportedError if API version is too low.
+
+		:returns: string, 'ok' or 'no'.
+		"""
+		api_version_min = StrictVersion('2.1')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('getSoundVizLiquid()', api_version_min,
+					self._apiVersion)
+		return ('no', 'ok')[bool(self._sendAndReceivePayload(
+			'getsoundvizliquid'))]
 
 	def getCountMonitors(self, fresh=True):
 		"""
@@ -633,9 +694,18 @@ class Lightpack:
 		"""
 		Set the Lightpack device type.
 
+		Deprecated in API v2.0
+
 		:param device: device type (see `getDevices()`)
 		:type device: str
+
+		Raises a CommandDeprecatedError if no longer supported by API.
 		"""
+		api_version_max = StrictVersion('1.5')
+		if self._apiVersion > api_version_max:
+			raise CommandDeprecatedError('setDevice()', api_version_max,
+					self._apiVersion)
+
 		self._sendAndExpectOk('setdevice:%s' % device)
 
 	def setMode(self, mode):
@@ -677,9 +747,19 @@ class Lightpack:
 	def setCountLeds(self, count):
 		"""
 		Set the number of LEDs.
+
+		Deprecated in API v2.0
+
 		:param count: Number of LEDs
 		:type count: int
+
+		Raises a CommandDeprecatedError if no longer supported by API.
 		"""
+		api_version_max = StrictVersion('1.5')
+		if self._apiVersion > api_version_max:
+			raise CommandDeprecatedError('setCountLeds()', api_version_max,
+					self._apiVersion)
+
 		self._sendAndExpectOk('setcountleds:%s' % count)
 
 	def _ledSizeDef(self, led, rectangle):
@@ -726,6 +806,55 @@ class Lightpack:
 			rgb = rgb.rgb255()
 		return '%d,%d,%d' % rgb
 
+	def setSoundVizColour(self, min_rgb, max_rgb):
+		"""
+		Set min and max color for sound visualization.
+
+		Since API v2.1
+
+		:param min_rgb: Tuple of red, green, blue values (0 to 255) or 
+		Colour object
+		:type min_rgb: tuple
+		:param max_rgb: Tuple of red, green, blue values (0 to 255) or 
+		Colour object
+		:type max_rgb: tuple
+
+		Raises a CommandNotSupportedError if API version is too low.
+		"""
+		api_version_min = StrictVersion('2.1')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('setSoundVizColour()', api_version_min,
+					self._apiVersion)
+		self._sendAndExpectOk('setsoundvizcolors:%s;%s' % (self._colourDef(
+			min_rgb), self._colourDef(max_rgb)))
+	setSoundVizColor = setSoundVizColour
+
+	def enableSoundVizLiquid(self):
+		"""
+		Set sound visualization to liquid color mode.
+
+		Since API v2.1
+		"""
+		api_version_min = StrictVersion('2.1')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('setSoundVizLiquid()', api_version_min,
+					self._apiVersion)
+		self._sendAndExpectOk('setsoundvizliquid:on')
+
+	def disableSoundVizLiquid(self):
+		"""
+		Disable sound visualization liquid color mode.
+
+		Since API v2.1
+
+		Raises a CommandNotSupportedError if API version is too low.
+		"""
+		api_version_min = StrictVersion('2.1')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('setSoundVizLiquid()', api_version_min,
+					self._apiVersion)
+		self._sendAndExpectOk('setsoundvizliquid:off')
+
 	def setSession(self, key):
 		"""
 		Set the session key.
@@ -750,6 +879,40 @@ class Lightpack:
 		Unlock the Lightpack, thereby releasing control to other processes.
 		"""
 		self._sendAndExpectSuccess('unlock')
+
+	def persist(self):
+		"""
+		Set whether the last set colors should persist when unlocking.
+
+		Since API v2.2
+
+		:returns: string, 'ok', 'error', 'busy' or 'not locked', possibly 
+		others
+
+		Raises a CommandNotSupportedError if API version is too low.
+		"""
+		api_version_min = StrictVersion('2.2')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('enablePersistence()', api_version_min,
+					self._apiVersion)
+		return self._sendAndExpectOk('setpersistonunlock:on')
+
+	def unpersist(self):
+		"""
+		Disable color persistence.
+
+		Since API v2.2
+
+		:returns: string, 'ok', 'error', 'busy' or 'not locked', possibly 
+		others
+
+		Raises a CommandNotSupportedError if API version is too low.
+		"""
+		api_version_min = StrictVersion('2.2')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('disablePersistence()', api_version_min, 
+					self._apiVersion)
+		return self._sendAndExpectOk('setpersistonunlock:off')
 
 	def _setStatus(self, status):
 		"""
@@ -804,6 +967,17 @@ class CommandFailedError(RuntimeError):
 		self.command = command
 		self.response = response
 		self.expected = expected
+
+
+class CommandDeprecatedError(RuntimeError):
+	def __init__(self, method, maximum, version):
+		message = "%s is deprecated in API version '%s'. The last " \
+				"compatible API version for this method is '%s'." \
+				% (method, version, maximum)
+		super(CommandDeprecatedError, self).__init__(message)
+		self.method = method
+		self.maximum = maximum
+		self.version = version
 
 
 class CommandNotSupportedError(RuntimeError):
