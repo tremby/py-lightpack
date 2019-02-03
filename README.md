@@ -45,6 +45,7 @@ should not be difficult to migrate. The changes include the following:
 - Method calls now raise a `CommandFailedError` on failure where before they 
   were silent.
 - Socket connection is buffered to prevent misreadings.
+- All API commands are implemented.
 
 Spellings
 ---------
@@ -86,6 +87,24 @@ try:
 except lightpack.CannotConnectError as e:
 	print(repr(e))
 	sys.exit(1)
+
+# Read the current states
+print("Status:           %s" % lp.getStatus())
+print("API status:       %s" % lp.getApiStatus())
+print("Locked:           %s" % lp.getLockStatus())
+
+print("Devices possible: %s" % ', '.join(lp.getDevices()))
+print("Device:           %s" % lp.getDevice())
+print("LED count:        %d" % lp.getCountLeds())
+print("LED max:          %d" % lp.getMaxLeds())
+print("Profiles:         %s" % ', '.join(lp.getProfiles()))
+print("Screen size:      %s" % (lp.getScreenSize(),))
+print("Monitor 0 size:   %s" % (lp.getMonitorSize(0),))
+print("LED 0 size:       %s" % (lp.getLedSizes()[0],))
+
+print("FPS:              %d" % lp.getFps())
+print("Mode:             %s" % lp.getMode())
+print("Profile:          %s" % lp.getProfile())
 
 # Lock the Lightpack so we can make changes
 lp.lock()
