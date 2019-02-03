@@ -30,6 +30,7 @@ Migrating from the official library
 There are a number of breaking changes from the original library, though code 
 should not be difficult to migrate. The changes include the following:
 
+- Support API up to v1.5 (from [Lightpack Fork](https://github.com/psieg/Lightpack)).
 - The class name is now in studly case, so use `lightpack.Lightpack()` instead 
   of `lightpack.lightpack()`.
 - The constructor now takes named arguments rather than expecting them in a 
@@ -91,6 +92,7 @@ except lightpack.CannotConnectError as e:
 # Read the current states
 print("Status:           %s" % lp.getStatus())
 print("API status:       %s" % lp.getApiStatus())
+print("API version:      %s" % lp.getApiVersion())
 print("Locked:           %s" % lp.getLockStatus())
 
 print("Devices possible: %s" % ', '.join(lp.getDevices()))
@@ -105,6 +107,10 @@ print("LED 0 size:       %s" % (lp.getLedSizes()[0],))
 print("FPS:              %d" % lp.getFps())
 print("Mode:             %s" % lp.getMode())
 print("Profile:          %s" % lp.getProfile())
+if lp.getApiVersion() >= '1.5':
+	print("Brightness:       %d" % lp.getBrightness())
+	print("Smoothness:       %s" % lp.getSmoothness())
+	print("Gamma:            %s" % lp.getGamma())
 
 # Lock the Lightpack so we can make changes
 lp.lock()

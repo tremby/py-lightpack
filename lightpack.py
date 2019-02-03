@@ -29,6 +29,9 @@ class Lightpack:
 	could be an invalid parameter, lack of permissions, lock from another 
 	process or something else, and this information will be in the exception.
 
+	Commands that are not supported by your API version will raise a 
+	CommandNotSupportedError.
+
 	Colours passed to the setColour, setColourToAll and setColours methods as 
 	the `rgb` variable can be either a tuple of red, green and blue integers (in 
 	the 0 to 255 range) or [Colour](https://github.com/tremby/py-colour) objects.
@@ -52,6 +55,7 @@ class Lightpack:
 		self.led_map = led_map
 		self.api_key = api_key
 		self.connection = None
+		self._apiVersion = None
 		self._countLeds = None
 		self._countMonitors = None
 		self._devices = []
@@ -60,6 +64,14 @@ class Lightpack:
 		self._monitor = {}
 		self._profiles = []
 		self._screenSize = None
+
+	def getApiVersion(self):
+		"""
+		Returns the detected API version.
+
+		:returns: string response
+		"""
+		return str(self._apiVersion)
 
 	def _ledIndex(self, led):
 		"""
@@ -235,6 +247,54 @@ class Lightpack:
 			colours[data[0]] = data[1]
 		return colours
 	getColorsFromAll = getColoursFromAll
+
+	def getGamma(self):
+		"""
+		Get the current gamma correction value.
+
+		Since API v1.5
+
+		Raises a CommandNotSupportedError if API version is too low.
+
+		:returns: float
+		"""
+		api_version_min = StrictVersion('1.5')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('getGamma()', api_version_min,
+					self._apiVersion)
+		return float(self._sendAndReceivePayload('getgamma'))
+
+	def getSmoothness(self):
+		"""
+		Get the current smoothness value.
+
+		Since API v1.5
+
+		Raises a CommandNotSupportedError if API version is too low.
+
+		:returns: integer
+		"""
+		api_version_min = StrictVersion('1.5')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('getSmoothness()', api_version_min,
+					self._apiVersion)
+		return int(self._sendAndReceivePayload('getsmooth'))
+
+	def getBrightness(self):
+		"""
+		Get the current brightness value.
+
+		Since API v1.5
+
+		Raises a CommandNotSupportedError if API version is too low.
+
+		:returns: integer
+		"""
+		api_version_min = StrictVersion('1.5')
+		if self._apiVersion < api_version_min:
+			raise CommandNotSupportedError('getBrightness()', api_version_min,
+					self._apiVersion)
+		return int(self._sendAndReceivePayload('getbrightness'))
 
 	def getDevice(self):
 		"""
@@ -474,12 +534,14 @@ class Lightpack:
 			fail(e)
 
 		# Check greeting and reported API version
-		match = re.match(r'^Lightpack API v(\S+)', greeting)
-		version = StrictVersion(match.group(1))
-		if version < API_VERSION_GTE or version > API_VERSION_LTE:
-			fail("API version (%s) is not supported" % version)
-		if not match:
-			print(match)
+		match = re.findall(r'API v?(\d+(?:\.\d+)?)', greeting)
+		if match:
+			match.sort(reverse=True)
+			self._apiVersion = StrictVersion(match[0])
+			if self._apiVersion < API_VERSION_GTE or self._apiVersion > \
+					API_VERSION_LTE:
+				fail("API version (%s) is not supported" % self._apiVersion)
+		else:
 			fail("Unrecognized greeting from server: \"%s\"" % greeting)
 
 		# Give API key if we have one
@@ -615,7 +677,6 @@ class Lightpack:
 	def setCountLeds(self, count):
 		"""
 		Set the number of LEDs.
-
 		:param count: Number of LEDs
 		:type count: int
 		"""
@@ -743,3 +804,14 @@ class CommandFailedError(RuntimeError):
 		self.command = command
 		self.response = response
 		self.expected = expected
+
+
+class CommandNotSupportedError(RuntimeError):
+	def __init__(self, method, minimum, version):
+		message = "%s is not supported in API version '%s'. The minimum " \
+				"required API version for this method is '%s'." \
+				% (method, version, minimum)
+		super(CommandNotSupportedError, self).__init__(message)
+		self.method = method
+		self.minimum = minimum
+		self.version = version
