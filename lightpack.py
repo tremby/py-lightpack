@@ -248,6 +248,26 @@ class Lightpack:
 		return colours
 	getColorsFromAll = getColoursFromAll
 
+	def getColourAverage(self):
+		"""
+		Get the average colour of all LEDs.
+
+		:returns: Tuple of red, green, blue values (0 to 255)
+		"""
+		try:
+			r = g = b = 0
+			colours = self.getColoursFromAll()
+			for k in colours:
+				r += colours[k][0]
+				g += colours[k][1]
+				b += colours[k][2]
+			count = len(colours)
+			return int(round(r / count)), int(round(g / count)), int(
+					round(b / count))
+		except ZeroDivisionError:
+			return None
+	getColorAverage = getColourAverage
+
 	def getGamma(self):
 		"""
 		Get the current gamma correction value.
