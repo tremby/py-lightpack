@@ -12,9 +12,10 @@ except ImportError:
 
 NAME = 'py-lightpack'
 DESCRIPTION = "Library to control Lightpack"
-AUTHOR = "Bart Nagel <bart@tremby.net>, Mikhail Sannikov <atarity@gmail.com>"
+AUTHOR = "Bart Nagel" # And others including Mikhail Sannikov and René-Marc Simard
+AUTHOR_EMAIL = 'bart@tremby.net'
 URL = 'https://github.com/tremby/py-lightpack'
-VERSION = '2.1.1'
+VERSION = '2.2.0'
 LICENSE = "GNU GPLv3"
 
 # Supported API version range
