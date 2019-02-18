@@ -30,6 +30,7 @@ Migrating from the official library
 There are a number of breaking changes from the original library, though code 
 should not be difficult to migrate. The changes include the following:
 
+- Support API up to v2.2 (from [Lightpack Fork](https://github.com/psieg/Lightpack)).
 - The class name is now in studly case, so use `lightpack.Lightpack()` instead 
   of `lightpack.lightpack()`.
 - The constructor now takes named arguments rather than expecting them in a 
@@ -45,6 +46,7 @@ should not be difficult to migrate. The changes include the following:
 - Method calls now raise a `CommandFailedError` on failure where before they 
   were silent.
 - Socket connection is buffered to prevent misreadings.
+- All API commands are implemented.
 
 Spellings
 ---------
@@ -86,6 +88,34 @@ try:
 except lightpack.CannotConnectError as e:
 	print(repr(e))
 	sys.exit(1)
+
+# Read the current states
+print("Status:           %s" % lp.getStatus())
+print("API status:       %s" % lp.getApiStatus())
+print("API version:      %s" % lp.getApiVersion())
+print("Locked:           %s" % lp.getLockStatus())
+
+print("Devices possible: %s" % ', '.join(lp.getDevices()))
+print("Device:           %s" % lp.getDevice())
+print("LED count:        %d" % lp.getCountLeds())
+print("LED max:          %d" % lp.getMaxLeds())
+print("Profiles:         %s" % ', '.join(lp.getProfiles()))
+print("Screen size:      %s" % (lp.getScreenSize(),))
+print("Monitor 0 size:   %s" % (lp.getMonitorSize(0),))
+print("LED 0 size:       %s" % (lp.getLedSizes()[0],))
+
+print("FPS:              %d" % lp.getFps())
+print("Mode:             %s" % lp.getMode())
+print("Profile:          %s" % lp.getProfile())
+if lp.getApiVersion() >= '1.5':
+	print("Brightness:       %d" % lp.getBrightness())
+	print("Smoothness:       %s" % lp.getSmoothness())
+	print("Gamma:            %s" % lp.getGamma())
+if lp.getApiVersion() >= '2.1':
+	print("SoundViz liquid:  %s" % lp.getSoundVizLiquid())
+	print("SoundViz colours: %s" % (lp.getSoundVizColours(),))
+if lp.getApiVersion() >= '2.2':
+	print("Persistence:      %s" % lp.getPersistence())
 
 # Lock the Lightpack so we can make changes
 lp.lock()
